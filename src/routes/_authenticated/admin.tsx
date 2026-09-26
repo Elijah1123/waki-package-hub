@@ -326,7 +326,7 @@ function OrdersPanel() {
   });
 
   const update = useMutation({
-    mutationFn: async ({ id, patch }: { id: string; patch: Record<string, string> }) => {
+    mutationFn: async ({ id, patch }: { id: string; patch: { status?: string; payment_status?: string } }) => {
       const { error } = await supabase.from("orders").update(patch).eq("id", id);
       if (error) throw error;
     },
@@ -362,7 +362,7 @@ function AdminOrderRow({
   onPatch,
 }: {
   order: OrderRow;
-  onPatch: (patch: Record<string, string>) => void;
+  onPatch: (patch: { status?: string; payment_status?: string }) => void;
 }) {
   const { data: items } = useQuery({
     queryKey: ["admin-order-items", order.id],

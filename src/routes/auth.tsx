@@ -142,7 +142,7 @@ function AuthPage() {
                   id="fullName"
                   label="Full name"
                   value={form.fullName}
-                  error={errors.fullName}
+                  error={errors["fullName"]}
                   onChange={(v) => setForm({ ...form, fullName: v })}
                   placeholder="Jane Wanjiru"
                 />
@@ -150,7 +150,7 @@ function AuthPage() {
                   id="phone"
                   label="Phone number"
                   value={form.phone}
-                  error={errors.phone}
+                  error={errors["phone"]}
                   onChange={(v) => setForm({ ...form, phone: v })}
                   placeholder="0712345678"
                 />
@@ -161,7 +161,7 @@ function AuthPage() {
               type="email"
               label="Email"
               value={form.email}
-              error={errors.email}
+              error={errors["email"]}
               onChange={(v) => setForm({ ...form, email: v })}
               placeholder="you@example.com"
             />
@@ -170,7 +170,7 @@ function AuthPage() {
               type="password"
               label="Password"
               value={form.password}
-              error={errors.password}
+              error={errors["password"]}
               onChange={(v) => setForm({ ...form, password: v })}
               placeholder="At least 6 characters"
             />
@@ -228,7 +228,7 @@ function Field({
   label: string;
   value: string;
   onChange: (value: string) => void;
-  error?: string;
+  error?: string | undefined;
   type?: string;
   placeholder?: string;
 }) {
