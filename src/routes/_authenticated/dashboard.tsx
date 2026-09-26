@@ -613,8 +613,8 @@ function ProfileSettings({
               placeholder="https://..."
               className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
-            {errors.avatar_url ? (
-              <p className="mt-1 text-xs text-destructive">{errors.avatar_url}</p>
+            {errors["avatar_url"] ? (
+              <p className="mt-1 text-xs text-destructive">{errors["avatar_url"]}</p>
             ) : null}
           </div>
         </div>
@@ -630,8 +630,8 @@ function ProfileSettings({
               onChange={(e) => setForm({ ...form, full_name: e.target.value })}
               className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
-            {errors.full_name ? (
-              <p className="mt-1 text-xs text-destructive">{errors.full_name}</p>
+            {errors["full_name"] ? (
+              <p className="mt-1 text-xs text-destructive">{errors["full_name"]}</p>
             ) : null}
           </div>
           <div>
@@ -645,7 +645,7 @@ function ProfileSettings({
               placeholder="07XXXXXXXX"
               className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
-            {errors.phone ? <p className="mt-1 text-xs text-destructive">{errors.phone}</p> : null}
+            {errors["phone"] ? <p className="mt-1 text-xs text-destructive">{errors["phone"]}</p> : null}
           </div>
           <button
             type="button"
@@ -673,8 +673,8 @@ function ProfileSettings({
               placeholder="e.g. Kiria-ini Town, next to the market, shop 12"
               className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
-            {errors.delivery_address ? (
-              <p className="mt-1 text-xs text-destructive">{errors.delivery_address}</p>
+            {errors["delivery_address"] ? (
+              <p className="mt-1 text-xs text-destructive">{errors["delivery_address"]}</p>
             ) : null}
           </div>
           <div>

@@ -116,8 +116,8 @@ function ContactPage() {
                 className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                 placeholder="Your full name"
               />
-              {errors.name ? (
-                <p className="mt-1 text-xs text-destructive">{errors.name}</p>
+              {errors["name"] ? (
+                <p className="mt-1 text-xs text-destructive">{errors["name"]}</p>
               ) : null}
             </div>
             <div>
@@ -132,8 +132,8 @@ function ContactPage() {
                 className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                 placeholder="you@example.com"
               />
-              {errors.email ? (
-                <p className="mt-1 text-xs text-destructive">{errors.email}</p>
+              {errors["email"] ? (
+                <p className="mt-1 text-xs text-destructive">{errors["email"]}</p>
               ) : null}
             </div>
             <div>
@@ -148,8 +148,8 @@ function ContactPage() {
                 className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                 placeholder="How can we help?"
               />
-              {errors.message ? (
-                <p className="mt-1 text-xs text-destructive">{errors.message}</p>
+              {errors["message"] ? (
+                <p className="mt-1 text-xs text-destructive">{errors["message"]}</p>
               ) : null}
             </div>
             <button
