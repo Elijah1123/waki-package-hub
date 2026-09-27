@@ -143,6 +143,7 @@ function AdminTab({
 function ProductsPanel() {
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState({ name: "", description: "", price: "", unit: "each" });
+  const [photo, setPhoto] = useState<File | null>(null);
 
   const { data: products } = useQuery({
     queryKey: ["admin-products"],
@@ -166,16 +167,19 @@ function ProductsPanel() {
       const price = Number(draft.price);
       if (draft.name.trim().length < 2) throw new Error("Enter a product name");
       if (!Number.isFinite(price) || price <= 0) throw new Error("Enter a valid price in Ksh");
+      const imageKey = photo ? await uploadProductImage(photo) : null;
       const { error } = await supabase.from("products").insert({
         name: draft.name.trim(),
         description: draft.description.trim() || null,
         price_ksh: Math.round(price),
         unit: draft.unit.trim() || "each",
+        image_key: imageKey,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       setDraft({ name: "", description: "", price: "", unit: "each" });
+      setPhoto(null);
       refresh();
       toast.success("Product added");
     },
