@@ -255,6 +255,29 @@ function ProductsPanel() {
             placeholder="Unit, e.g. each / per kg"
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
+          <div>
+            <label
+              htmlFor="new-product-photo"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-background px-3 py-3 text-sm text-muted-foreground transition-colors hover:bg-secondary"
+            >
+              <ImagePlus className="size-4" />
+              {photo ? photo.name : "Upload product photo (optional)"}
+            </label>
+            <input
+              id="new-product-photo"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+            />
+            {photo ? (
+              <img
+                src={URL.createObjectURL(photo)}
+                alt="Preview"
+                className="mt-2 aspect-[4/3] w-full rounded-lg object-cover"
+              />
+            ) : null}
+          </div>
           <button
             type="button"
             onClick={() => addProduct.mutate()}
