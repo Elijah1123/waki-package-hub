@@ -25,6 +25,7 @@ import {
   type OrderRow,
   type ShippingZone,
 } from "@/lib/waki";
+import { ProductImg } from "@/components/ProductImg";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({

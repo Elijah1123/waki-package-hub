@@ -2,10 +2,26 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Home, Package, Plus, Trash2, Truck, Users } from "lucide-react";
+import { Home, ImagePlus, Package, Plus, Trash2, Truck, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useSession } from "@/hooks/useSession";
 import { ksh, type OrderRow, type Product, type ShippingZone } from "@/lib/waki";
+import {
+  PRODUCT_IMAGE_BUCKET,
+  ProductImg,
+  STORAGE_PREFIX,
+} from "@/components/ProductImg";
+
+async function uploadProductImage(file: File): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from(PRODUCT_IMAGE_BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+  });
+  if (error) throw error;
+  return `${STORAGE_PREFIX}${path}`;
+}
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
