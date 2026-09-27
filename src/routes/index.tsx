@@ -6,7 +6,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
-import { BUSINESS, ksh, productImage, type Product } from "@/lib/waki";
+import { BUSINESS, ksh, type Product } from "@/lib/waki";
+import { ProductImg } from "@/components/ProductImg";
 import heroImage from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({

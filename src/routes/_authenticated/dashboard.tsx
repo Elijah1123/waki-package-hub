@@ -21,7 +21,6 @@ import {
   BUSINESS,
   KENYAN_PHONE,
   ksh,
-  productImage,
   type CartRow,
   type OrderRow,
   type ShippingZone,
