@@ -2,10 +2,26 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Home, Package, Plus, Trash2, Truck, Users } from "lucide-react";
+import { Home, ImagePlus, Package, Plus, Trash2, Truck, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useSession } from "@/hooks/useSession";
 import { ksh, type OrderRow, type Product, type ShippingZone } from "@/lib/waki";
+import {
+  PRODUCT_IMAGE_BUCKET,
+  ProductImg,
+  STORAGE_PREFIX,
+} from "@/components/ProductImg";
+
+async function uploadProductImage(file: File): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from(PRODUCT_IMAGE_BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+  });
+  if (error) throw error;
+  return `${STORAGE_PREFIX}${path}`;
+}
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -127,6 +143,7 @@ function AdminTab({
 function ProductsPanel() {
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState({ name: "", description: "", price: "", unit: "each" });
+  const [photo, setPhoto] = useState<File | null>(null);
 
   const { data: products } = useQuery({
     queryKey: ["admin-products"],
@@ -150,16 +167,19 @@ function ProductsPanel() {
       const price = Number(draft.price);
       if (draft.name.trim().length < 2) throw new Error("Enter a product name");
       if (!Number.isFinite(price) || price <= 0) throw new Error("Enter a valid price in Ksh");
+      const imageKey = photo ? await uploadProductImage(photo) : null;
       const { error } = await supabase.from("products").insert({
         name: draft.name.trim(),
         description: draft.description.trim() || null,
         price_ksh: Math.round(price),
         unit: draft.unit.trim() || "each",
+        image_key: imageKey,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       setDraft({ name: "", description: "", price: "", unit: "each" });
+      setPhoto(null);
       refresh();
       toast.success("Product added");
     },
@@ -235,6 +255,29 @@ function ProductsPanel() {
             placeholder="Unit, e.g. each / per kg"
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
+          <div>
+            <label
+              htmlFor="new-product-photo"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-background px-3 py-3 text-sm text-muted-foreground transition-colors hover:bg-secondary"
+            >
+              <ImagePlus className="size-4" />
+              {photo ? photo.name : "Upload product photo (optional)"}
+            </label>
+            <input
+              id="new-product-photo"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+            />
+            {photo ? (
+              <img
+                src={URL.createObjectURL(photo)}
+                alt="Preview"
+                className="mt-2 aspect-[4/3] w-full rounded-lg object-cover"
+              />
+            ) : null}
+          </div>
           <button
             type="button"
             onClick={() => addProduct.mutate()}
@@ -261,9 +304,42 @@ function ProductRow({
   const [name, setName] = useState(product.name);
   const [price, setPrice] = useState(String(product.price_ksh));
   const [unit, setUnit] = useState(product.unit);
+  const [uploading, setUploading] = useState(false);
+
+  const changePhoto = async (file: File | null) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const imageKey = await uploadProductImage(file);
+      onSave({ image_key: imageKey });
+    } catch {
+      toast.error("Could not upload the photo");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border p-3">
+      <label
+        className="relative size-14 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-secondary"
+        title="Change photo"
+      >
+        <ProductImg imageKey={product.image_key} alt={product.name} className="size-full object-cover" />
+        <span className="absolute inset-0 flex items-center justify-center bg-foreground/40 opacity-0 transition-opacity hover:opacity-100">
+          <ImagePlus className="size-5 text-background" />
+        </span>
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          disabled={uploading}
+          onChange={(e) => {
+            void changePhoto(e.target.files?.[0] ?? null);
+            e.target.value = "";
+          }}
+        />
+      </label>
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}

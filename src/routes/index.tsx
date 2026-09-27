@@ -6,7 +6,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
-import { BUSINESS, ksh, productImage, type Product } from "@/lib/waki";
+import { BUSINESS, ksh, type Product } from "@/lib/waki";
+import { ProductImg } from "@/components/ProductImg";
 import heroImage from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
@@ -155,24 +156,14 @@ function HomePage() {
         ) : (
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {(products ?? []).map((product) => {
-              const image = productImage(product.image_key);
               return (
                 <article key={product.id} className="surface-card flex flex-col overflow-hidden">
                   <div className="paper-texture aspect-[4/3] w-full bg-secondary">
-                    {image ? (
-                      <img
-                        src={image}
-                        alt={product.name}
-                        loading="lazy"
-                        className="size-full object-cover"
-                        width={816}
-                        height={612}
-                      />
-                    ) : (
-                      <div className="flex size-full items-center justify-center text-sm text-muted-foreground">
-                        Image coming soon
-                      </div>
-                    )}
+                    <ProductImg
+                      imageKey={product.image_key}
+                      alt={product.name}
+                      className="size-full object-cover"
+                    />
                   </div>
                   <div className="flex flex-1 flex-col p-5">
                     <h3 className="text-lg">{product.name}</h3>

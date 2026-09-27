@@ -21,11 +21,11 @@ import {
   BUSINESS,
   KENYAN_PHONE,
   ksh,
-  productImage,
   type CartRow,
   type OrderRow,
   type ShippingZone,
 } from "@/lib/waki";
+import { ProductImg } from "@/components/ProductImg";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -253,20 +253,14 @@ function DashboardPage() {
               ) : (
                 <ul className="mt-4 divide-y divide-border">
                   {cart.map((row) => {
-                    const image = productImage(row.products?.image_key);
                     return (
                       <li key={row.id} className="flex items-center gap-3 py-3">
                         <div className="size-14 shrink-0 overflow-hidden rounded-lg bg-secondary">
-                          {image ? (
-                            <img
-                              src={image}
-                              alt={row.products?.name ?? ""}
-                              loading="lazy"
-                              className="size-full object-cover"
-                              width={56}
-                              height={56}
-                            />
-                          ) : null}
+                          <ProductImg
+                            imageKey={row.products?.image_key}
+                            alt={row.products?.name ?? ""}
+                            className="size-full object-cover"
+                          />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold">{row.products?.name}</p>
