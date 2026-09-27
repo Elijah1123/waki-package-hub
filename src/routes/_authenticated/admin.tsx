@@ -304,9 +304,42 @@ function ProductRow({
   const [name, setName] = useState(product.name);
   const [price, setPrice] = useState(String(product.price_ksh));
   const [unit, setUnit] = useState(product.unit);
+  const [uploading, setUploading] = useState(false);
+
+  const changePhoto = async (file: File | null) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const imageKey = await uploadProductImage(file);
+      onSave({ image_key: imageKey });
+    } catch {
+      toast.error("Could not upload the photo");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border p-3">
+      <label
+        className="relative size-14 shrink-0 cursor-pointer overflow-hidden rounded-lg bg-secondary"
+        title="Change photo"
+      >
+        <ProductImg imageKey={product.image_key} alt={product.name} className="size-full object-cover" />
+        <span className="absolute inset-0 flex items-center justify-center bg-foreground/40 opacity-0 transition-opacity hover:opacity-100">
+          <ImagePlus className="size-5 text-background" />
+        </span>
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          disabled={uploading}
+          onChange={(e) => {
+            void changePhoto(e.target.files?.[0] ?? null);
+            e.target.value = "";
+          }}
+        />
+      </label>
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}
