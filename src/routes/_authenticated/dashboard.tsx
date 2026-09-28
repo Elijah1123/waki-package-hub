@@ -500,8 +500,31 @@ const profileSchema = z.object({
     .trim()
     .min(5, "Describe your exact delivery location")
     .max(300),
-  avatar_url: z.string().trim().url("Enter a valid image link").max(500).or(z.literal("")),
+  avatar_url: z.string().max(400000, "Image is too large"),
 });
+
+function resizeImage(file: File, size: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("no canvas"));
+        const s = Math.min(img.width, img.height);
+        ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 type ProfileRecord = {
   full_name: string | null;
@@ -597,16 +620,39 @@ function ProfileSettings({
             )}
           </div>
           <div className="flex-1">
-            <label className="text-sm font-medium" htmlFor="avatar_url">
-              Profile picture link
+            <label className="text-sm font-medium" htmlFor="avatar_file">
+              Profile picture
             </label>
             <input
-              id="avatar_url"
-              value={form.avatar_url}
-              onChange={(e) => setForm({ ...form, avatar_url: e.target.value })}
-              placeholder="https://..."
-              className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+              id="avatar_file"
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (!file.type.startsWith("image/")) {
+                  toast.error("Please choose an image file");
+                  return;
+                }
+                try {
+                  const dataUrl = await resizeImage(file, 256);
+                  setForm((f) => ({ ...f, avatar_url: dataUrl }));
+                  toast.success("Photo ready — click Save to keep it");
+                } catch {
+                  toast.error("Could not read that image");
+                }
+              }}
+              className="mt-1 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-secondary file:px-3 file:py-2 file:text-sm file:font-medium"
             />
+            {form.avatar_url ? (
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, avatar_url: "" })}
+                className="mt-1 text-xs text-muted-foreground underline"
+              >
+                Remove photo
+              </button>
+            ) : null}
             {errors["avatar_url"] ? (
               <p className="mt-1 text-xs text-destructive">{errors["avatar_url"]}</p>
             ) : null}
