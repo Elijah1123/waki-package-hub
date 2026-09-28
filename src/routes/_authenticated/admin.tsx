@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Home, ImagePlus, Package, Plus, Trash2, Truck, Users } from "lucide-react";
+import { Home, ImagePlus, Mail, Package, Plus, Trash2, Truck, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useSession } from "@/hooks/useSession";
 import { ksh, type OrderRow, type Product, type ShippingZone } from "@/lib/waki";
@@ -39,7 +39,45 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
-type Tab = "products" | "orders" | "users" | "shipping";
+type Tab = "products" | "orders" | "users" | "shipping" | "messages";
+
+function MessagesPanel() {
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["admin-messages"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contact_messages")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    refetchInterval: 30000,
+  });
+  if (isLoading) return <p className="text-sm text-muted-foreground">Loading messages...</p>;
+  if (data.length === 0)
+    return <div className="surface-card p-6 text-sm text-muted-foreground">No messages yet.</div>;
+  return (
+    <div className="space-y-3">
+      {data.map((m) => (
+        <div key={m.id} className="surface-card p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="font-semibold">
+              {m.name}{" "}
+              <a href={`mailto:${m.email}`} className="text-sm font-normal text-primary underline">
+                {m.email}
+              </a>
+            </p>
+            <span className="text-xs text-muted-foreground">
+              {new Date(m.created_at).toLocaleString("en-KE")}
+            </span>
+          </div>
+          <p className="mt-2 whitespace-pre-wrap text-sm">{m.message}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function AdminPage() {
   const { user } = useSession();
@@ -100,6 +138,9 @@ function AdminPage() {
           <AdminTab active={tab === "shipping"} onClick={() => setTab("shipping")} icon={<Truck className="size-4" />}>
             Shipping fees
           </AdminTab>
+          <AdminTab active={tab === "messages"} onClick={() => setTab("messages")} icon={<Mail className="size-4" />}>
+            Messages
+          </AdminTab>
         </div>
 
         <div className="mt-6">
@@ -107,6 +148,7 @@ function AdminPage() {
           {tab === "orders" ? <OrdersPanel /> : null}
           {tab === "users" ? <UsersPanel /> : null}
           {tab === "shipping" ? <ShippingPanel /> : null}
+          {tab === "messages" ? <MessagesPanel /> : null}
         </div>
       </div>
     </div>
